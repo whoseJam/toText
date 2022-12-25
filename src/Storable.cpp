@@ -7,7 +7,7 @@ StoreID Storable::storeCurrentID = 0;
 
 Storable::Storable() {
     //TODO mutex ? 
-    storeID = storeCurrentID++;
+    storeID = ++storeCurrentID;
 }
 
 StoreID Storable::getStoreID() const {
@@ -20,4 +20,7 @@ StoreID Storable::getLastStoreID() const {
 
 void Storable::setLastStoreID(StoreID id) {
     lastStoreID = id;
+}
+
+void Storable::afterDecode() {
 }

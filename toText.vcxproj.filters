@@ -30,6 +30,15 @@
     <ClInclude Include="src\StoreBase.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\test\studentAndPig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\adventurerAndWeapon.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\container.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -39,6 +48,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="src\Storable.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\studentAndPig.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\adventurerAndWeapon.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\container.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

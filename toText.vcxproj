@@ -144,11 +144,17 @@
     <ClInclude Include="src\Storage.h" />
     <ClInclude Include="src\Store.h" />
     <ClInclude Include="src\StoreBase.h" />
+    <ClInclude Include="src\test\adventurerAndWeapon.h" />
+    <ClInclude Include="src\test\container.h" />
+    <ClInclude Include="src\test\studentAndPig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Storable.cpp" />
     <ClCompile Include="src\Store.cpp" />
+    <ClCompile Include="src\test\adventurerAndWeapon.cpp" />
+    <ClCompile Include="src\test\studentAndPig.cpp" />
+    <ClCompile Include="src\test\container.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="example\adventurerAndWeapon.txt" />

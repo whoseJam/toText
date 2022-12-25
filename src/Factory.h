@@ -19,7 +19,7 @@ namespace Store {
 					Map[key] = func;
 			}
 		};
-		static BaseClass* getNormalPtr(const std::string& key) {
+		static BaseClass* get(const std::string& key) {
 			std::function<BaseClass* ()> fun = Factory::getInstance()->find(key);
 			return fun();
 		}

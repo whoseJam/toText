@@ -8,6 +8,8 @@
 #include <list>
 #include <set>
 #include <map>
+#include <stack>
+#include <queue>
 #include <unordered_set>
 #include <unordered_map>
 
@@ -88,6 +90,18 @@ namespace Store {
     };
     template<typename T, typename ...Types>
     struct is_container<std::vector<T, Types...>> : std::true_type {
+        using value_type = T;
+    };
+    template<typename T, typename ...Types>
+    struct is_container<std::list<T, Types...>> : std::true_type {
+        using value_type = T;
+    };
+    template<typename T, typename ...Types>
+    struct is_container<std::stack<T, Types...>> : std::true_type {
+        using value_type = T;
+    };
+    template<typename T, typename ...Types>
+    struct is_container<std::queue<T, Types...>> : std::true_type {
         using value_type = T;
     };
     template<typename T, typename ...Types>

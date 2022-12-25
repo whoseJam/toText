@@ -1,2 +1,2 @@
-[class] Pig 1 food 100 health 50 [endclass]
-[class] Student 0 grade 5 score 18.5 age 15 name hsj food 100 health 0 [endclass]
+[class] Student 1 grade 5 score 18.5 age 15 name hsj food 100 health 0 [endclass]
+[class] Pig 2 food 100 health 50 [endclass]

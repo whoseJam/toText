@@ -10,37 +10,31 @@
 #include "Storage.h"
 
 namespace Store {
-    template<typename T>
-    T* loadAs(std::ifstream& stream) {
-        std::string name;
-        stream >> name; //[beginclass]
-        stream >> name;
-        T* item = dynamic_cast<T*>(
-            Factory<Storable>::getNormalPtr(name)
-            );
-        if (item == nullptr) {
-            std::cout << "loadAs Type Error\n";
-            std::cout << "Correct Type is " << name << "\n";
-            exit(-1);
+    template<typename T> 
+    T* filter(const std::vector<Storable*>& vec) {
+        T* ret = nullptr;
+        for (Storable* it : vec) {
+            if ((ret = dynamic_cast<T*>(it)) != nullptr)
+                return ret;
         }
-        item->decodeFirstClass(stream);
-        while (true) {
-            stream >> name;
-            if (name == "[endclass]") break;
-            bool flag = item->decode(name, stream);
-        }
-        addStorable(item);
-        return item;
+        return ret;
     }
 }
 
 #define STORE_PUBLIC(Class,Value) \
 	Store::Storage<Class>::Public<decltype(Class::Value)> \
     __STORE_##Class##_##Value(#Value,offsetof(Class,Class::Value));
-#define STORE_PRIVATE(Class,Value,Getter,Setter) \
-	Store::Storage<Class>::Private<decltype(Store::getter_trait(&Class::Getter))> \
-    __STORE_##Class##_##Getter_Setter \
-    (#Value,&Class::Getter,&Class::Setter);
+#define STORE_PRIVATE(Class,Value) \
+	struct __STORE_##Class##_##Value##_helper { \
+        __STORE_##Class##_##Value##_helper() { \
+            Store::Storage<Class>::Public<decltype(Class::Value)> \
+            Register(#Value,offsetof(Class,Class::Value)); \
+        } \
+    } __STORE_##Class##_##Value;
+#define STORE_EXPORT_HELPER(Class,Value) \
+    struct __STORE_##Class##_##Value##_helper;
+#define STORE_EXPORT(Class,Value) \
+    friend __STORE_##Class##_##Value##_helper;
 
 #define STORE_CHECK_SELF_LOAD_SUCCESSFUL(self) \
     if (Store::Storage<self>::getInstance()->decode(this, name, stream)) return true;
@@ -74,7 +68,7 @@ namespace Store {
     STORE_CHECK_PARENT_LOAD_SUCCESSFUL(p2);
 
 #define STORE_DECODE_CLASS(self) \
-    StoreID value; stream >> value; setLastStoreID(value);
+    StoreID value; stream >> value; setLastStoreID(value); Store::addStorable(this);
 #define STORE_ENCODE_CLASS_HEAD(self) \
     stream << "[class] " << #self << ' ' << getStoreID() <<' ';
 #define STORE_ENCODE_CLASS_FOOT(self) \
@@ -115,7 +109,7 @@ namespace Store {
     bool self::decodeFirstClass(std::ifstream& stream) {STORE_DECODE_CLASS(self); return false; } \
     void self::encode(std::ofstream& stream) {STORE_ENCODE_BODY_2(self,p0);} \
     void self::encodeFirstClass(std::ofstream& stream) {STORE_ENCODE_CLASS_HEAD(self); STORE_ENCODE_BODY_2(self,p0); STORE_ENCODE_CLASS_FOOT(self); }
-#define STORABLE_IMPL_2(self,p0,p1s) \
+#define STORABLE_IMPL_2(self,p0,p1) \
     bool self::decode(const std::string& name, std::ifstream& stream) { STORE_DECODE_BODY_3(self,p0,p1); return false; } \
     bool self::decodeFirstClass(std::ifstream& stream) {STORE_DECODE_CLASS(self); return false; } \
     void self::encode(std::ofstream& stream) {STORE_ENCODE_BODY_3(self,p0,p1);} \
@@ -131,5 +125,6 @@ namespace Store {
 
 namespace Store {
     void store(const std::string& path, std::vector<Storable*>);
+    std::vector<Storable*> load(std::ifstream& stream);
     std::vector<Storable*> load(const std::string& path);
 }

@@ -8,13 +8,10 @@ namespace Store {
 	public:
 		using PtrDecodeFunc = std::function<void(void*, std::ifstream&)>;
 		using PtrEncodeFunc = std::function<void(void*, std::ofstream&)>;
-		using SetFunc = std::function<void(Base*, std::ifstream&)>;
-		using GetFunc = std::function<void(Base*, std::ofstream&)>;
 		using Offset = unsigned int;
 
 		static void checkRepeated(const std::string& name) {
-			if (getInstance()->setterFunc.find(name) != getInstance()->setterFunc.end() ||
-				getInstance()->ptrDecodeFunc.find(name) != getInstance()->ptrDecodeFunc.end()) {
+			if (getInstance()->ptrDecodeFunc.find(name) != getInstance()->ptrDecodeFunc.end()) {
 				std::cout << "Error : " << name << " is Repeated\n";
 				exit(-1);
 			}
@@ -26,8 +23,8 @@ namespace Store {
 		};
 
 		/*
-		int
-		string
+		1) int/double/string
+		2) costom-type (support stream)
 		*/
 		template<typename T>
 		struct Public<T, std::enable_if_t<has_fstream_v<T> && !std::is_base_of_v<Storable, get_origin_t<T>>>> {
@@ -42,7 +39,24 @@ namespace Store {
 		};
 
 		/*
-		vector<int>
+		enum class
+		*/
+		template<typename T>
+		struct Public<T, std::enable_if_t<std::is_enum_v<T>>> {
+			Public(const std::string& name, Offset off) {
+				Storage<Base>::checkRepeated(name);
+				using base_type = std::underlying_type_t<T>;
+				auto decoder = [](void* ptr, std::ifstream& stream) {stream >> (*((base_type*)ptr)); };
+				auto encoder = [](void* ptr, std::ofstream& stream) {stream << (*((base_type*)ptr)) << ' '; };
+				getInstance()->ptrDecodeFunc[name] = decoder;
+				getInstance()->ptrEncodeFunc[name] = encoder;
+				getInstance()->offset[name] = off;
+			}
+		};
+
+		/*
+		1) vector/list/deque<int/double/string>
+		2) vector/list/deque<costom-type> (support stream)
 		*/
 		template<typename T>
 		struct Public<T, std::enable_if_t<
@@ -76,10 +90,14 @@ namespace Store {
 		};
 
 		/*
-		int*
+		1) int* /double* / string*
+		2) costom-type* (support stream)
 		*/
 		template<typename T>
-		struct Public<T, std::enable_if_t<std::is_pointer_v<T> && !std::is_base_of_v<Storable, get_origin_t<T>>>> {
+		struct Public<T, std::enable_if_t<
+			has_fstream_v<get_origin_t<T>> && 
+			std::is_pointer_v<T>
+			>> {
 			Public(const std::string& name, Offset off) {
 				Storage<Base>::checkRepeated(name);
 				auto decoder = [](void* ptr, std::ifstream& stream) {
@@ -94,7 +112,7 @@ namespace Store {
 		};
 
 		/*
-		A* (storeable)
+		1) Storable*
 		*/
 		template<typename T>
 		struct Public<T, std::enable_if_t<
@@ -105,17 +123,18 @@ namespace Store {
 				Storage<Base>::checkRepeated(name);
 				auto decoder = [=](void* ptr, std::ifstream& stream) {
 					StoreID id; stream >> id;
-					Storable* memory = Store::getStorable(id);
-					if (memory != nullptr)
-						*static_cast<Storable**>(ptr) = memory;
+					if (id == 0) *static_cast<Storable**>(ptr) = nullptr;
 					else {
 						*static_cast<StoreID*>(ptr) = id;
 						addDependency(static_cast<Storable*>(ptr));
 					}
 				};
 				auto encoder = [](void* ptr, std::ofstream& stream) {
-					stream << (**static_cast<Storable**>(ptr)).getStoreID() << ' ';
-					addDependency(*static_cast<Storable**>(ptr));
+					if (*static_cast<Storable**>(ptr) == nullptr) stream << 0 << ' ';
+					else {
+						stream << (**static_cast<Storable**>(ptr)).getStoreID() << ' ';
+						addDependency(*static_cast<Storable**>(ptr));
+					}
 				};
 				getInstance()->ptrDecodeFunc[name] = decoder;
 				getInstance()->ptrEncodeFunc[name] = encoder;
@@ -124,11 +143,12 @@ namespace Store {
 		};
 		
 		/*
-		vector<A*(public Storable)>
+		1) vector/list/deque<Storable*>
 		*/
 		template<typename T>
 		struct Public<T, std::enable_if_t<
-			has_push_back_v<T>&&
+			has_push_back_v<T> &&
+			is_container_v<T> &&
 			std::is_base_of_v<Storable, get_origin_t<typename T::value_type>>&&
 			std::is_pointer_v<typename T::value_type>
 			>> {
@@ -164,78 +184,12 @@ namespace Store {
 			}
 		};
 
-		template<typename T, typename V = void>
-		struct Private {
-			Private() = delete;
-		};
-
-		template<typename T>
-		struct Private<T, std::enable_if_t<has_fstream_in_v<T> && !std::is_base_of_v<Storable, get_origin_t<T>>>> {
-			Private(const std::string& name, T(Base::* getter)(), void(Base::* setter)(T)) {
-				Storage<Base>::checkRepeated(name);
-				auto decoder = [=](Base* base, std::ifstream& stream) {T value; stream >> value; (base->*setter)(value); };
-				auto encoder = [=](Base* base, std::ofstream& stream) {stream << (base->*getter)() << ' '; };
-				getInstance()->setterFunc[name] = decoder;
-				getInstance()->getterFunc[name] = encoder;
-			}
-		};
-		
-		/*
-		A*(Storable)
-		*/
-		template<typename T>
-		struct Private<T, std::enable_if_t<
-			std::is_base_of_v<Storable, get_origin_t<T>>
-			>> {
-			Private(const std::string& name, T(Base::* getter)(), void(Base::* setter)(T)) {
-				Storage<Base>::checkRepeated(name);
-				auto decoder = [=](Base* base, std::ifstream& stream) {
-					StoreID id; stream >> id;
-					Storable* memory = Store::getStorable(id);
-					if (memory != nullptr)
-						(base->*setter)(static_cast<T>(memory));
-					else {
-						(base->*setter)((T)(id));
-						std::function<Storable* (void)> get = [=]() {return ((Storable*)(base->*getter)()); };
-						std::function<void(Storable*)> set = [=](Storable* item) { (base->*setter)((T)(item)); };
-						addDependency(get, set);
-					}
-				};
-				auto encoder = [=](Base* base, std::ofstream& stream) {
-					stream << (base->*getter)()->getStoreID() << ' ';
-					addDependency((base->*getter)());
-				};
-				getInstance()->setterFunc[name] = decoder;
-				getInstance()->getterFunc[name] = encoder;
-			}
-			Private(const std::string& name, T(Base::* getter)() const, void(Base::* setter)(T)) {
-				Storage<Base>::checkRepeated(name);
-				auto decoder = [=](Base* base, std::ifstream& stream) {
-					StoreID id; stream >> id;
-					Storable* memory = Store::getStorable(id);
-					if (memory != nullptr)
-						(base->*setter)(static_cast<T>(memory));
-					else {
-						(base->*setter)((T)(id));
-						std::function<Storable* (void)> get = [=]() {return ((Storable*)(base->*getter)()); };
-						std::function<void(Storable*)> set = [=](Storable* item) { (base->*setter)((T)(item)); };
-						addDependency(get, set);
-					}
-				};
-				auto encoder = [=](Base* base, std::ofstream& stream) {
-					stream << (base->*getter)()->getStoreID() << ' ';
-					addDependency((base->*getter)());
-				};
-				getInstance()->setterFunc[name] = decoder;
-				getInstance()->getterFunc[name] = encoder;
-			}
-		};
-
 		bool decode(Base* base, const std::string& name, std::ifstream& stream) {
-			std::cout << "decode name=" << name << "\n";
-			if (decodeFromPtr(base, name, stream))return true;
-			if (decodeFromSetter(base, name, stream))return true;
-			return false;
+			if (ptrDecodeFunc.find(name) ==
+				ptrDecodeFunc.end())return false;
+			void* ptr = (void*)((char*)base + (offset[name]));
+			ptrDecodeFunc[name](ptr, stream);
+			return true;
 		}
 		void encode(Base* base, std::ofstream& stream) {
 			for (auto& it : ptrEncodeFunc) {
@@ -243,37 +197,18 @@ namespace Store {
 				stream << it.first << ' ';
 				(it.second)(ptr, stream);
 			}
-			for (auto& it : getterFunc) {
-				stream << it.first << ' ';
-				(it.second)(base, stream);
-			}
 		}
 		static Storage* getInstance() {
 			static Storage f;
 			return &f;
 		}
 	private:
-		bool decodeFromPtr(void* base, const std::string& name, std::ifstream& stream) {
-			if (ptrDecodeFunc.find(name) ==
-				ptrDecodeFunc.end())return false;
-			void* ptr = (void*)((char*)base + (offset[name]));
-			ptrDecodeFunc[name](ptr, stream);
-			return true;
-		}
-		bool decodeFromSetter(Base* base, const std::string& name, std::ifstream& stream) {
-			if (setterFunc.find(name) ==
-				setterFunc.end())return false;
-			setterFunc[name](base, stream);
-			return true;
-		}
 		Storage() {};
 		Storage(const Storage&) = delete;
 		Storage(Storage&&) = delete;
 		Storage& operator=(const Storage&) = delete;
 		std::map<std::string, PtrDecodeFunc> ptrDecodeFunc;
 		std::map<std::string, PtrEncodeFunc> ptrEncodeFunc;
-		std::map<std::string, SetFunc> setterFunc;
-		std::map<std::string, GetFunc> getterFunc;
 		std::map<std::string, Offset> offset;
 	};
 }

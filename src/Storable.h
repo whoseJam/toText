@@ -11,6 +11,7 @@ public:
 	virtual void encodeFirstClass(std::ofstream& file) = 0;
 	virtual bool decode(const std::string& name, std::ifstream& file) = 0;
 	virtual bool decodeFirstClass(std::ifstream& file) = 0;
+	virtual void afterDecode();
 	StoreID getStoreID() const;
 	StoreID getLastStoreID() const;
 protected:
