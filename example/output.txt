@@ -1,1 +1,2 @@
-[beginclass] Container 1 deque 10 2 4 6 8 10 12 14 16 18 20 list 10 1 2 3 4 5 6 7 8 9 10 name test type 2 vec 10 2 4 8 16 32 64 128 256 512 1024 [endclass]
+[beginclass] Student 1 grade 5 score 18.5 age 15 name hsj@hahaha food 100 health 0 [endclass]
+[beginclass] Pig 2 food 100 health 50 [endclass]

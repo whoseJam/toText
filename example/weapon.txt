@@ -1,1 +1,1 @@
-[beginclass] Weapon 0 attack 10 name 传说之刃 prop 30 [endclass]
+[beginclass] Weapon 1 attack 10 name 传说之刃 prop 30 [endclass]

@@ -28,6 +28,30 @@ namespace Store {
     T getter_trait(T(Base::*)()const) {
     }
 
+    template<typename T, typename Comp, typename V = void>
+    struct type_func{
+        type_func(std::function<void(void)>) {}
+        void operator()() {}
+    };
+    template<typename T, typename Comp>
+    struct type_func<T, Comp, std::enable_if_t<std::is_same_v<T, Comp>>> {
+        std::function<void(void)> func;
+        type_func(std::function<void(void)> func) { this->func = func; }
+        void operator()() { func(); }
+    };
+    template<typename T, typename Comp, typename V = void>
+    struct type_func_else {
+        type_func_else(std::function<void(void)>) {}
+        void operator()() {}
+    };
+    template<typename T, typename Comp>
+    struct type_func_else<T, Comp, std::enable_if_t<!std::is_same_v<T, Comp>>> {
+        std::function<void(void)> func;
+        type_func_else(std::function<void(void)> func) { this->func = func; }
+        void operator()() { func(); }
+    };
+
+
     template<typename T>
     using get_origin_t = std::remove_pointer_t<std::remove_reference_t<T>>;
 
@@ -130,12 +154,10 @@ namespace Store {
     template<typename T>
     constexpr bool has_push_back_v = has_push_back<T>::value;
 
+    void file2string(void* ptr);
+    std::string string2file(void* str);
     Storable* getStorable(StoreID id);
     void addStorable(Storable* item);
     void addDependency(Storable* item);
-    void addDependency(
-        std::function<Storable*(void)> getter,
-        std::function<void(Storable*)> setter
-    );
     void afterDecode();
 }

@@ -30,8 +30,18 @@ namespace Store {
 		struct Public<T, std::enable_if_t<has_fstream_v<T> && !std::is_base_of_v<Storable, get_origin_t<T>>>> {
 			Public(const std::string& name, Offset off) {
 				Storage<Base>::checkRepeated(name);
-				auto decoder = [](void* ptr, std::ifstream& stream) {stream >> (*((T*)ptr)); };
-				auto encoder = [](void* ptr, std::ofstream& stream) {stream << (*((T*)ptr)) << ' '; };
+				auto decoder = [](void* ptr, std::ifstream& stream) {
+					stream >> (*((T*)ptr)); 
+					type_func<T, std::string> is_string([=]() {file2string(ptr); });
+					is_string();
+				};
+				auto encoder = [](void* ptr, std::ofstream& stream) {
+					T& value = (*((T*)ptr));
+					type_func<T, std::string> is_string([&]() {stream << string2file(ptr) << ' '; });
+					type_func_else<T, std::string> not_string([&]() {stream << value << ' '; });
+					is_string();
+					not_string();
+				};
 				getInstance()->ptrDecodeFunc[name] = decoder;
 				getInstance()->ptrEncodeFunc[name] = encoder;
 				getInstance()->offset[name] = off;
@@ -73,6 +83,8 @@ namespace Store {
 					for (int i = 0; i < size; i++) {
 						inner_value_type tmp;
 						stream >> tmp;
+						type_func<inner_value_type, std::string> is_string([&]() {file2string(&tmp); });
+						is_string();
 						container.push_back(tmp);
 					}
 				};
@@ -80,7 +92,10 @@ namespace Store {
 					T& container = *reinterpret_cast<T*>(ptr);
 					stream << container.size() << ' ';
 					for (inner_value_type& it : container) {
-						stream << it << ' ';
+						type_func<inner_value_type, std::string> is_string([&]() {stream << string2file(&it) << ' '; });
+						type_func_else<inner_value_type, std::string> not_string([&]() {stream << it << ' '; });
+						is_string();
+						not_string();
 					}
 				};
 				getInstance()->ptrDecodeFunc[name] = decoder;

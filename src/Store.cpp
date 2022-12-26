@@ -12,6 +12,24 @@ namespace Store {
 	vector<Storable*> dependency;
 	set<Storable*> encoded;
 
+	string string2file(void* ptr) {
+		string str = *((string*)ptr);
+		if (str == "") return "<empty>";
+		for (int i = 0; i < str.length(); i++) {
+			if (str[i] == ' ') str[i] = '@';
+			if (str[i] == '\n')str[i] = '$';
+		}
+		return str;
+	}
+	void file2string(void* ptr) {
+		string& str = *((string*)ptr);
+		if (str == "<empty>") str = "";
+		for (int i = 0; i < str.length(); i++) {
+			if (str[i] == '@') str[i] = ' ';
+			if (str[i] == '$') str[i] = '\n';
+ 		}
+	}
+
 	Storable* load(std::string& className, ifstream& stream) {
 		string name;
 		Storable* item = Factory<Storable>::get(className);
