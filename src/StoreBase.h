@@ -15,7 +15,7 @@
 
 struct Storable;
 
-using StoreID = unsigned long long;
+using StoreID = unsigned int;
 
 namespace Store {
     template<typename T>

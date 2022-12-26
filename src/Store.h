@@ -70,58 +70,89 @@ namespace Store {
 #define STORE_DECODE_CLASS(self) \
     StoreID value; stream >> value; setLastStoreID(value); Store::addStorable(this);
 #define STORE_ENCODE_CLASS_HEAD(self) \
-    stream << "[class] " << #self << ' ' << getStoreID() <<' ';
+    stream << "[beginclass] " << #self << ' ' << getStoreID() <<' ';
 #define STORE_ENCODE_CLASS_FOOT(self) \
     stream << "[endclass]\n";
 
-#define STORABLE_DECLARE \
+#define STORE_PARENT_CREATE_1(p0) \
+    p0(0,0,0,0,0,0,0,0,0,0)
+#define STORE_PARENT_CREATE_2(p0,p1) \
+    STORE_PARENT_CREATE_1(p0), STORE_PARENT_CREATE_1(p1)
+#define STORE_PARENT_CREATE_3(p0,p1,p2) \
+    STORE_PARENT_CREATE_2(p0,p1), STORE_PARENT_CREATE_1(p2)
+
+#define STORABLE_DECLARE(self) \
+protected: \
+    friend Store::Factory<Storable>; \
+    self(int,int,int,int,int,int,int,int,int,int); \
+public: \
     virtual bool decode(const std::string& name, std::ifstream& stream) override; \
     virtual bool decodeFirstClass(std::ifstream& stream) override; \
     virtual void encode(std::ofstream& stream) override; \
     virtual void encodeFirstClass(std::ofstream& stream) override;
 #define STORABLE_DECLARE_AND_IMPL(self) \
+protected: \
+    friend Store::Factory<Storable>; \
+    self(int,int,int,int,int,int,int,int,int,int) {}; \
+public: \
     virtual bool decode(const std::string& name, std::ifstream& stream) override { STORE_DECODE_BODY_1(self); return false; } \
     virtual bool decodeFirstClass(std::ifstream& stream) override { STORE_DECODE_CLASS(self); return false; } \
     virtual void encode(std::ofstream& stream) override { STORE_ENCODE_BODY_1(self); } \
     virtual void encodeFirstClass(std::ofstream& stream) override { STORE_ENCODE_CLASS_HEAD(self); STORE_ENCODE_BODY_1(self); STORE_ENCODE_CLASS_FOOT(self);}
 #define STORABLE_DECLARE_AND_IMPL_1(self,p0) \
+protected: \
+    friend Store::Factory<Storable>; \
+    self(int,int,int,int,int,int,int,int,int,int) : STORE_PARENT_CREATE_1(p0) {}; \
+public: \
     virtual bool decode(const std::string& name, std::ifstream& stream) override { STORE_DECODE_BODY_2(self,p0); return false; } \
     virtual bool decodeFistClass(std::ifstream& stream) override { STORE_DECODE_CLASS(self); return false;} \
     virtual void encode(std::ofstream& stream) override { STORE_ENCODE_BODY_2(self,p0); } \
     virtual void encodeFirstClass(std::ofstream& stream) override { STORE_ENCODE_CLASS_HEAD(self); STORE_ENCODE_BODY_2(self,p0); STORE_ENCODE_CLASS_FOOT(self);}
 #define STORABLE_DECLARE_AND_IMPL_2(self,p0,p1) \
+protected: \
+    friend Store::Factory<Storable>; \
+    self(int,int,int,int,int,int,int,int,int,int) : STORE_PARENT_CREATE_2(p0,p1) {}; \
+public: \
     virtual bool decode(const std::string& name, std::ifstream& stream) override { STORE_DECODE_BODY_3(self,p0,p1); return false; } \
     virtual bool decodeFirstClass(std::ifstream& stream) override { STORE_DECODE_CLASS(self); return false; } \
     virtual void encode(std::ofstream& stream) override { STORE_ENCODE_BODY_3(self,p0,p1); } \
     virtual void encodeFirstClass(std::ofstream& stream) override { STORE_ENCODE_CLASS_HEAD(self); STORE_ENCODE_BODY_3(self,p0,p1); STORE_ENCODE_CLASS_FOOT(self);}
 #define STORABLE_DECLARE_AND_IMPL_3(self,p0,p1,p2) \
+protected: \
+    friend Store::Factory<Storable>; \
+    self(int,int,int,int,int,int,int,int,int,int) : STORE_PARENT_CREATE_3(p0,p1,p2) {}; \
+public: \
     virtual bool decode(const std::string& name, std::ifstream& stream) override { STORE_DECODE_BODY_4(self,p0,p1,p2); return false; } \
     virtual bool decodeFirstClass(std::ifstream& stream) override { STORE_DECODE_CLASS(self); return false; } \
     virtual void encode(std::ofstream& stream) override { STORE_ENCODE_BODY_4(self,p0,p1,p2); } \
     virtual void encodeFirstClass(std::ofstream& stream) override { STORE_ENCODE_CLASS_HEAD(self); STORE_ENCODE_BODY_4(self,p0,p1,p2); STORE_ENCODE_CLASS_FOOT(self);}
 #define STORABLE_IMPL(self) \
+    self::self(int,int,int,int,int,int,int,int,int,int) { } \
     bool self::decode(const std::string& name, std::ifstream& stream) { STORE_DECODE_BODY_1(self); return false; } \
     bool self::decodeFirstClass(std::ifstream& stream) {STORE_DECODE_CLASS(self); return false; } \
     void self::encode(std::ofstream& stream) {STORE_ENCODE_BODY_1(self);} \
     void self::encodeFirstClass(std::ofstream& stream) {STORE_ENCODE_CLASS_HEAD(self); STORE_ENCODE_BODY_1(self); STORE_ENCODE_CLASS_FOOT(self); }
 #define STORABLE_IMPL_1(self,p0) \
+    self::self(int,int,int,int,int,int,int,int,int,int) : STORE_PARENT_CREATE_1(p0) { } \
     bool self::decode(const std::string& name, std::ifstream& stream) { STORE_DECODE_BODY_2(self,p0); return false; } \
     bool self::decodeFirstClass(std::ifstream& stream) {STORE_DECODE_CLASS(self); return false; } \
     void self::encode(std::ofstream& stream) {STORE_ENCODE_BODY_2(self,p0);} \
     void self::encodeFirstClass(std::ofstream& stream) {STORE_ENCODE_CLASS_HEAD(self); STORE_ENCODE_BODY_2(self,p0); STORE_ENCODE_CLASS_FOOT(self); }
 #define STORABLE_IMPL_2(self,p0,p1) \
+    self::self(int,int,int,int,int,int,int,int,int,int) : STORE_PARENT_CREATE_2(p0,p1) { } \
     bool self::decode(const std::string& name, std::ifstream& stream) { STORE_DECODE_BODY_3(self,p0,p1); return false; } \
     bool self::decodeFirstClass(std::ifstream& stream) {STORE_DECODE_CLASS(self); return false; } \
     void self::encode(std::ofstream& stream) {STORE_ENCODE_BODY_3(self,p0,p1);} \
     void self::encodeFirstClass(std::ofstream& stream) {STORE_ENCODE_CLASS_HEAD(self); STORE_ENCODE_BODY_3(self,p0,p1); STORE_ENCODE_CLASS_FOOT(self); }
 #define STORABLE_IMPL_3(self,p0,p1,p2) \
+    self::self(int,int,int,int,int,int,int,int,int,int) : STORE_PARENT_CREATE_3(p0,p1,p2) { } \
     bool self::decode(const std::string& name, std::ifstream& stream) { STORE_DECODE_BODY_4(self,p0,p1,p2); return false; } \
     bool self::decodeFirstClass(std::ifstream& stream) {STORE_DECODE_CLASS(self); return false; } \
     void self::encode(std::ofstream& stream) {STORE_ENCODE_BODY_2(self,p0,p1,p2);} \
     void self::encodeFirstClass(std::ofstream& stream) {STORE_ENCODE_CLASS_HEAD(self); STORE_ENCODE_BODY_4(self,p0,p1,p2); STORE_ENCODE_CLASS_FOOT(self); }
 
 #define STORE(Class) \
-    Store::Factory<Storable>::registerClass<Class> __STORE_FACTORY_##Class(#Class)
+    Store::Factory<Storable>::registerClass<Class> __STORE_FACTORY_##Class(#Class, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
 namespace Store {
     void store(const std::string& path, std::vector<Storable*>);

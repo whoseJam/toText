@@ -6,7 +6,8 @@
 #include <string>
 using namespace std;
 
+
 int main() {
-    testStudentAndPig();
+    testContainer();
     return 0;
 }

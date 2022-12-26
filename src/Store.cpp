@@ -35,8 +35,10 @@ namespace Store {
 			ans.push_back(tmp);
 			stream >> className; //[beginclass] or empty
 		}
-		for (Storable* obj : ans)
-			obj->afterDecode();
+		afterDecode();
+		for (Storable* obj : ans) {
+			obj->afterDecodeWrapper();
+		}
 		return ans;
 	}
 
@@ -52,7 +54,6 @@ namespace Store {
 		return nullptr;
 	}
 	void addStorable(Storable* item) {
-		std::cout << "insert " << item->getLastStoreID() << "\n";
 		memory[item->getLastStoreID()] = item;
 	}
 	void addDependency(Storable* depend) {
@@ -61,7 +62,6 @@ namespace Store {
 	void afterDecode() {
 		for (Storable* ptr : dependency) {
 			StoreID id = *((StoreID*)ptr);
-			cout << "id=" << id << " addr="<<ptr<<"\n";
 			Storable* item = getStorable(id);
 			if (item == nullptr) {
 				cout << "File Broken\n";
@@ -70,23 +70,18 @@ namespace Store {
 			*((Storable**)ptr) = item;
 		}
 		dependency.clear();
+		memory.clear();
 	}
     
     void store(const string& path, vector<Storable*> objects) {
-		//encoded.clear();
-		std::cout << "Object_size=" << path << " " << encoded.size() << "\n";
-        ofstream output;
+		encoded.clear();
+		ofstream output;
         output.open(path);
         for (Storable* object : objects) {
-			std::cout << "haha\n";
-
-			if (encoded.find(object) != encoded.end()) {
-				std::cout << "continue\n";
+			if (encoded.find(object) != encoded.end())
 				continue;
-			}
             object->encodeFirstClass(output);
 			encoded.insert(object);
-			std::cout << "output\n";
         }
 		while (dependency.size() > 0) {
 			Storable* object = dependency[dependency.size() - 1];

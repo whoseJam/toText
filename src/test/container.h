@@ -5,11 +5,12 @@ STORE_EXPORT_HELPER(Container, list);
 STORE_EXPORT_HELPER(Container, deque);
 struct Container : public Storable {
 public:
-    STORABLE_DECLARE;
+    STORABLE_DECLARE(Container);
     STORE_EXPORT(Container, vec);
     STORE_EXPORT(Container, list);
     STORE_EXPORT(Container, deque);
 public:
+    Container() { };
     enum class Type {Short, Long, VeryLong};
     Type type;
     std::string name;

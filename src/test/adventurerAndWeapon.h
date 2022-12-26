@@ -7,7 +7,7 @@ class Adventurer;
 STORE_EXPORT_HELPER(Weapon, owner);
 class Weapon : public Storable {
 public:
-    STORABLE_DECLARE;
+    STORABLE_DECLARE(Weapon);
     STORE_EXPORT(Weapon, owner);
 public:
     std::string name;
@@ -21,7 +21,7 @@ private:
 
 class Adventurer : public Storable {
 public:
-    STORABLE_DECLARE;
+    STORABLE_DECLARE(Adventurer);
 public:
     std::string name;
     int health;

@@ -4,16 +4,18 @@
 
 class Pig : virtual public Storable {
 public:
-    STORABLE_DECLARE;
+    STORABLE_DECLARE(Pig);
 public:
+    Pig() = delete;
     int health;
     int food;
 };
 
 class People : virtual public Storable {
 public:
-    STORABLE_DECLARE;
+    STORABLE_DECLARE(People);
 public:
+    People() = delete;
     std::string name;
     int age;
 };
@@ -21,9 +23,10 @@ public:
 STORE_EXPORT_HELPER(Student, score);
 class Student : public People, public Pig {
 public:
-    STORABLE_DECLARE;
+    STORABLE_DECLARE(Student);
     STORE_EXPORT(Student, score);
 public:
+    Student() = delete;
     int grade;
     float getScore() { return score; }
     void setScore(float v) { score = v; }

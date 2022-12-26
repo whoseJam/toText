@@ -7,6 +7,7 @@ StoreID Storable::storeCurrentID = 0;
 
 Storable::Storable() {
     //TODO mutex ? 
+    afterDecodeFlag = false;
     storeID = ++storeCurrentID;
 }
 
@@ -23,4 +24,10 @@ void Storable::setLastStoreID(StoreID id) {
 }
 
 void Storable::afterDecode() {
+}
+
+void Storable::afterDecodeWrapper() {
+    if (afterDecodeFlag) return;
+    afterDecodeFlag = true;
+    afterDecode();
 }
