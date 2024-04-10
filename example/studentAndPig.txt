@@ -1,2 +1,0 @@
-[beginclass] Student 1 grade 5 score 18.5 age 15 name hsj@hahaha food 100 health 0 [endclass] 
-[beginclass] Pig 2 food 100 health 50 [endclass]

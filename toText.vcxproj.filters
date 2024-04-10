@@ -15,56 +15,34 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Factory.h">
+    <ClInclude Include="toText\include\Factory.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\Storable.h">
+    <ClInclude Include="toText\include\Storable.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\Storage.h">
+    <ClInclude Include="toText\include\Storage.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\Store.h">
+    <ClInclude Include="toText\include\Store.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\StoreBase.h">
+    <ClInclude Include="toText\include\Traiter.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\test\studentAndPig.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\test\adventurerAndWeapon.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\test\container.h">
+    <ClInclude Include="toText\include\ToText.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="toText\src\Store.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Store.cpp">
+    <ClCompile Include="toText\src\Storable.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Storable.cpp">
+    <ClCompile Include="example\testBool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\test\studentAndPig.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\test\adventurerAndWeapon.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\test\container.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="example\studentAndPig.txt" />
-    <Text Include="example\output.txt" />
-    <Text Include="example\weapon.txt" />
-    <Text Include="example\adventurerAndWeapon.txt" />
-    <Text Include="example\arrayList.txt" />
   </ItemGroup>
 </Project>

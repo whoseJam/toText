@@ -3,6 +3,8 @@
 
 using namespace std;
 
+namespace ttx {
+
 StoreID Storable::storeCurrentID = 0;
 
 Storable::Storable() {
@@ -30,4 +32,6 @@ void Storable::afterDecodeWrapper() {
     if (afterDecodeFlag) return;
     afterDecodeFlag = true;
     afterDecode();
+}
+
 }

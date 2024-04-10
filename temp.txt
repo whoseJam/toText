@@ -1,0 +1,3 @@
+[beginclass] Pigman 1 hp 50 isFriendly 0 [endclass]
+[beginclass] Pigman 2 hp 75 isFriendly 1 [endclass]
+[beginclass] Pigman 3 hp 45 isFriendly 1 [endclass]

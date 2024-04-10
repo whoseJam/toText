@@ -1,5 +1,0 @@
-[beginclass] Adventurer 5 name hsj health 1 weapons 4 1 2 3 4 [endclass]
-[beginclass] Weapon 1 name 杀杀杀 prop 1 attack 10086 owner 0 [endclass]
-[beginclass] Weapon 2 name 霜之哀伤 prop 2 attack 10086 owner 0 [endclass]
-[beginclass] Weapon 3 name 火之高兴 prop 3 attack 10086 owner 0 [endclass]
-[beginclass] Weapon 4 name 败者吃土 prop 4 attack 10086 owner 0 [endclass]
