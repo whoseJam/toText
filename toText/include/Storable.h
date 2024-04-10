@@ -7,23 +7,24 @@
 
 namespace ttx {
 
-/*    Storable
-*    ÈÎºÎĞèÒª±»ĞòÁĞ»¯µÄÀà¶¼Ó¦¸Ã¼Ì³Ğ×Ô´Ë»ùÀà
+/** Storable
+ * ä»»ä½•æƒ³è¦è¢«åºåˆ—åŒ–ç±»éƒ½åº”è¯¥ç»§æ‰¿æ­¤åŸºç±»
+ * è®¾è¯¥ç±»ä¸­éœ€è¦è¢«åºåˆ—åŒ–çš„æˆå‘˜æ„æˆä¸€ä¸ªé›†åˆS
 */
 struct Storable {
 public:
     Storable();
     
-    // ½«ÃûÎªnameµÄ³ÉÔ±±äÁ¿ĞòÁĞ»¯£¬Êä³öµ½ostreamÖĞ
+    // å°†streamååºåˆ—åŒ–è¾“å…¥åˆ°Sä¸­çš„æˆå‘˜
     virtual void encode(std::ostream& stream) = 0;
 
-    // ÎªÊµÀı´´½¨Ò»¸öÎ¨Ò»µÄStoreID
+    // å°†streamååºåˆ—åŒ–è¾“å…¥åˆ°Sä¸­çš„æˆå‘˜ï¼Œå¹¶ä¸ºè‡ªå·±åˆ†é…ä¸€ä¸ªStoreID
     virtual void encodeFirstClass(std::ostream& stream) = 0;
 
-    // ½«ÃûÎªnameµÄ³ÉÔ±±äÁ¿·´ĞòÁĞ»¯£¬´ÓistreamÖĞÊäÈë
+    // å°†S<name>è¿™ä¸ªæˆå‘˜åºåˆ—åŒ–
     virtual bool decode(const std::string& name, std::istream& stream) = 0;
 
-    // ÎªÊµÀı´´½¨Ò»¸öÎ¨Ò»µÄStoreID
+    // å°†Sä¸­çš„æˆå‘˜åºåˆ—åŒ–è¾“å‡ºåˆ°streamä¸­ï¼Œå¹¶ä¸”è¾“å‡ºè‡ªå·±çš„StoreID
     virtual bool decodeFirstClass(std::istream& stream) = 0;
 
     void afterDecodeWrapper();

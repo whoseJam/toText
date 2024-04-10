@@ -29,14 +29,13 @@ std::vector<Storable*> load(const std::string& path);
 
 void file2string(void* ptr);
 std::string string2file(void* str);
-// Storable* getStorable(StoreID id);
 void addStorable(Storable* item);
 void addDependency(Storable* item);
 void afterDecode();
 
 }
 
-// ¶¨ÒåÒ»¸ö¿ÉĞòÁĞ»¯µÄ³ÉÔ±±äÁ¿
+// å®šä¹‰ Class çš„ Value ä¸ºä¸€ä¸ªéœ€è¦è¢«åºåˆ—åŒ–çš„éå…¬æœ‰æˆå‘˜
 #define TTX_VARIABLE_PRI(Class, Value) \
     Class::__ttx_##Class##_##Value##_helper::__ttx_##Class##_##Value##_helper() { \
         ttx::Storage<Class>::Variable<decltype(Class::Value)> \
@@ -44,6 +43,7 @@ void afterDecode();
     } \
     Class::__ttx_##Class##_##Value##_helper __ttx_##Class##_##Value;
 
+// å®šä¹‰ Class çš„ Value ä¸ºä¸€ä¸ªéœ€è¦è¢«åºåˆ—åŒ–çš„å…¬æœ‰æˆå‘˜
 #define TTX_VARIABLE_PUB(Class, Value) \
     struct __ttx_##Class##_##Value##_helper { \
         __ttx_##Class##_##Value##_helper() { \
@@ -52,10 +52,8 @@ void afterDecode();
         } \
     } __ttx_##Class##_##Value;
 
-#define TTX_EXPORT_HELPER(Class,Value) \
-    struct __ttx_##Class##_##Value##_helper;
-
-#define TTX_EXPORT(Class,Value) \
+// å¯¼å‡º Class çš„ç§æœ‰æˆå‘˜ Value
+#define TTX_EXPORT(Class, Value) \
     struct __ttx_##Class##_##Value##_helper { \
         __ttx_##Class##_##Value##_helper(); \
     };
@@ -71,26 +69,26 @@ void afterDecode();
 
 #define TTX_ENCODE_BODY_1(self) \
     ttx::Storage<self>::getInstance()->encode(this, stream);
-#define TTX_ENCODE_BODY_2(self,p0) \
+#define TTX_ENCODE_BODY_2(self, p0) \
     TTX_ENCODE_BODY_1(self); \
     TTX_ENCODE_PARENT(p0);
-#define TTX_ENCODE_BODY_3(self,p0,p1) \
-    TTX_ENCODE_BODY_2(self,p0); \
+#define TTX_ENCODE_BODY_3(self, p0, p1) \
+    TTX_ENCODE_BODY_2(self, p0); \
     TTX_ENCODE_PARENT(p1);
-#define TTX_ENCODE_BODY_4(self,p0,p1,p2) \
-    TTX_ENCODE_BODY_3(self,p0,p1); \
+#define TTX_ENCODE_BODY_4(self, p0, p1, p2) \
+    TTX_ENCODE_BODY_3(self, p0, p1); \
     TTX_ENCODE_PARENT(p2);
 
 #define TTX_DECODE_BODY_1(self) \
     TTX_CHECK_SELF_LOAD_SUCCESSFUL(self);
-#define TTX_DECODE_BODY_2(self,p0) \
+#define TTX_DECODE_BODY_2(self, p0) \
     TTX_DECODE_BODY_1(self); \
     TTX_CHECK_PARENT_LOAD_SUCCESSFUL(p0);
-#define TTX_DECODE_BODY_3(self,p0,p1) \
-    TTX_DECODE_BODY_2(self,p0); \
+#define TTX_DECODE_BODY_3(self, p0, p1) \
+    TTX_DECODE_BODY_2(self, p0); \
     TTX_CHECK_PARENT_LOAD_SUCCESSFUL(p1);
-#define TTX_DECODE_BODY_4(self,p0,p1,p2) \
-    TTX_DECODE_BODY_3(self,p0,p1); \
+#define TTX_DECODE_BODY_4(self, p0, p1, p2) \
+    TTX_DECODE_BODY_3(self, p0, p1); \
     TTX_CHECK_PARENT_LOAD_SUCCESSFUL(p2);
 
 #define TTX_DECODE_CLASS(self) \
@@ -101,16 +99,15 @@ void afterDecode();
     stream << "[endclass]\n";
 
 #define TTX_PARENT_CREATE_1(p0) \
-    p0(0,0,0,0,0,0,0,0,0,0)
+    p0(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 #define TTX_PARENT_CREATE_2(p0,p1) \
     TTX_PARENT_CREATE_1(p0), TTX_PARENT_CREATE_1(p1)
 #define TTX_PARENT_CREATE_3(p0,p1,p2) \
-    TTX_PARENT_CREATE_2(p0,p1), TTX_PARENT_CREATE_1(p2)
+    TTX_PARENT_CREATE_2(p0, p1), TTX_PARENT_CREATE_1(p2)
 
 #define __TTX_REGISTER(Class) \
     ttx::Factory<ttx::Storable>::registerClass<Class> __TTX_FACTORY_##Class(#Class, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
 
-/* ÉùÃ÷Storable¶ÔÏó±ØĞëÓĞµÄ·½·¨ */
 #define TTX_DECLARE(self) \
 protected: \
     friend ttx::Factory<Storable>; \
@@ -121,7 +118,6 @@ public: \
     virtual void encode(std::ostream& stream) override; \
     virtual void encodeFirstClass(std::ostream& stream) override;
 
-/* ÊµÏÖStorable¶ÔÏó±ØĞëÓĞµÄ·½·¨ */
 #define TTX_IMPL(self) \
     self::self(int,int,int,int,int,int,int,int,int,int) { } \
     bool self::decode(const std::string& name, std::istream& stream) { TTX_DECODE_BODY_1(self); return false; } \
@@ -130,7 +126,6 @@ public: \
     void self::encodeFirstClass(std::ostream& stream) {TTX_ENCODE_CLASS_HEAD(self); TTX_ENCODE_BODY_1(self); TTX_ENCODE_CLASS_FOOT(self); } \
     __TTX_REGISTER(self);
 
-/* ÊµÏÖStorable¶ÔÏó±ØĞëÓĞµÄ·½·¨£¬¿ÉÒÔĞ¯´øÒ»¸ö¸¸Àà */
 #define TTX_IMPL_1(self,p0) \
     self::self(int,int,int,int,int,int,int,int,int,int) : TTX_PARENT_CREATE_1(p0) { } \
     bool self::decode(const std::string& name, std::istream& stream) { TTX_DECODE_BODY_2(self,p0); return false; } \
@@ -139,7 +134,6 @@ public: \
     void self::encodeFirstClass(std::ostream& stream) {TTX_ENCODE_CLASS_HEAD(self); TTX_ENCODE_BODY_2(self,p0); TTX_ENCODE_CLASS_FOOT(self); } \
     __TTX_REGISTER(self);
 
-/* ÊµÏÖStorable¶ÔÏó±ØĞëÓĞµÄ·½·¨£¬¿ÉÒÔĞ¯´øÁ½¸ö¸¸Àà */
 #define TTX_IMPL_2(self,p0,p1) \
     self::self(int,int,int,int,int,int,int,int,int,int) : TTX_PARENT_CREATE_2(p0,p1) { } \
     bool self::decode(const std::string& name, std::istream& stream) { TTX_DECODE_BODY_3(self,p0,p1); return false; } \
@@ -148,7 +142,6 @@ public: \
     void self::encodeFirstClass(std::ostream& stream) {TTX_ENCODE_CLASS_HEAD(self); TTX_ENCODE_BODY_3(self,p0,p1); TTX_ENCODE_CLASS_FOOT(self); } \
     __TTX_REGISTER(self);
 
-/* ÊµÏÖStorable¶ÔÏó±ØĞëÓĞµÄ·½·¨£¬¿ÉÒÔĞ¯´øÈı¸ö¸¸Àà */
 #define TTX_IMPL_3(self,p0,p1,p2) \
     self::self(int,int,int,int,int,int,int,int,int,int) : TTX_PARENT_CREATE_3(p0,p1,p2) { } \
     bool self::decode(const std::string& name, std::istream& stream) { TTX_DECODE_BODY_4(self,p0,p1,p2); return false; } \

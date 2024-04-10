@@ -10,9 +10,14 @@ void addDependency(Storable* item);
 void file2string(void* ptr);
 std::string string2file(void* str);
 
-/* StorageÖĞÌá¹©ÁË¶Ô²»Í¬Êı¾İÀàĞÍµÄencode/decode·½·¨
-*  Ã¿Ò»¸ö¼Ì³ĞÓÚStorableµÄÀà¶¼»áÓĞ×Ô¼ºµÄStorageÀà
-*  StorageÖĞ±£´æÁËÃ¿¸öStorableµÄ <¿ÉĞòÁĞ»¯±äÁ¿Ãû>
+/** Storage
+ * æ¯ä¸€ä¸ªéœ€è¦è¢«åºåˆ—åŒ–çš„ç±» Cï¼Œéƒ½ä¼šæœ‰ä¸€ä¸ªå¯¹åº”çš„å•ä¾‹å¯¹è±¡ Storage<C>
+ * Storage<C> å­˜å‚¨äº†éœ€è¦è¢«åºåˆ—åŒ–çš„æˆå‘˜æ„æˆçš„é›†åˆ S
+ * å¯¹äºé›†åˆSä¸­çš„æ¯ä¸€ä¸ªå…ƒç´ ï¼Œéƒ½æ˜¯ä¸€ä¸ªå››å…ƒç»„ (name, decoder, encoder, offset)
+ *  - name: æˆå‘˜åç§°
+ *  - decoder: ååºåˆ—åŒ–æ–¹æ³•
+ *  - encoder: åºåˆ—åŒ–æ–¹æ³•
+ *  - offset: æˆå‘˜ç›¸å¯¹äºç±» C çš„åç§»é‡
 */
 template<typename Base>
 class Storage {
@@ -74,12 +79,12 @@ public:
     template<typename T, typename V = void>
     struct Variable {
         Variable() = delete;
-        Variable(const std::string& name,   // ÀàµÄ³ÉÔ±±äÁ¿Ãû
-                 Offset offset)             // ³ÉÔ±±äÁ¿Ïà¶ÔÓÚÀàµÄÆ«ÒÆÁ¿
+        Variable(const std::string& name,
+                 Offset offset)
         = delete;
     };
 
-    // ÈÎÒâÖ§³Ö << ºÍ >> ÖØÔØÔËËãµÄ»ù´¡ÀàĞÍ
+    // ostream << T and istream >> T
     template<typename T>
     struct Variable<T,
         std::enable_if_t<
@@ -106,7 +111,7 @@ public:
         }
     };
 
-    // Ö§³Ö string ÀàĞÍ
+    // T = std::string
     template<typename T>
     struct Variable<T, 
         std::enable_if_t<
@@ -132,7 +137,7 @@ public:
         }
     };
 
-    // Ö§³ÖÃ¶¾ÙÀàĞÍ
+    //  enum and enum class
     template<typename T>
     struct Variable<T, 
         std::enable_if_t<
@@ -157,7 +162,7 @@ public:
         }
     };
 
-    // Ö§³ÖÈÎºÎ¿ÉÒÔµü´úµÄ£¬ÓµÓĞpush_back·½·¨µÄÆÕÍ¨ÔªËØÈİÆ÷
+    // T.push_back and T is iterable (e.g vector/list/deque)
     template<typename T>
     struct Variable<T,
         std::enable_if_t<
@@ -195,15 +200,16 @@ public:
         }
     };
 
-    // ·ÇStorableµÄÖ¸ÕëÀàĞÍ£¬ÖØ½¨Ê±²»»á±£ÁôÒıÓÃ¼ÇÒä¹ØÏµ
-    template<typename T> // T = BasicType*
+    // T = BasicType* and BasicType != Storable
+    template<typename T>
     struct Variable<T,
         std::enable_if_t<
             std::is_pointer_v<T> &&
-            !std::is_base_of_v<Storable, get_origin_t<T>>
+            !std::is_base_of_v<Storable, std::remove_pointer_t<T>> &&
+            std::is_same_v<typename std::remove_pointer_t<T>*, T>
         >
     > {
-        using B = std::remove_pointer_t<T>;
+        using B = std::remove_pointer_t<T>; // B = BasicType
         Variable(const std::string& name, Offset offset) {
             getInstance()->insert(name, getDecoder(), getEncoder(), offset);
         }
@@ -224,8 +230,8 @@ public:
         }
     };
 
-    // StorableµÄÖ¸ÕëÀàĞÍ£¬ÖØ½¨Ê±»á±£ÁôÒıÓÃ¼ÇÒä¹ØÏµ
-    template<typename T>    // T = Storable*
+    // T = Storable*
+    template<typename T>
     struct Variable<T,
         std::enable_if_t<
             std::is_pointer_v<T> &&

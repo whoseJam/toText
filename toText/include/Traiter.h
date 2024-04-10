@@ -26,12 +26,12 @@ template<typename Base, typename T>
 T getter_trait(T(Base::*)()const) {
 }
 
-// ÓÃÀ´ÒÆ³ıÀàĞÍTÉÏµÄËùÓĞÒıÓÃºÍÖ¸Õë
+// ç”¨æ¥ç§»é™¤ç±»å‹Tä¸Šçš„æ‰€æœ‰å¼•ç”¨å’ŒæŒ‡é’ˆ
 template<typename T>
 using get_origin_t = std::remove_pointer_t<std::remove_reference_t<T>>;
 
 
-// ÓÃÀ´ÍÆµ¼ÊÇ·ñ´æÔÚ << ºÍ >> ÊäÈëÊä³ö·½·¨
+// ç”¨æ¥æ¨å¯¼æ˜¯å¦å­˜åœ¨ << å’Œ >> è¾“å…¥è¾“å‡ºæ–¹æ³•
 template<typename T>
 T& to_lvalue(T&& rvalue) {
     return rvalue;
@@ -44,21 +44,10 @@ template<typename T>
 using output_exist_t = decltype(
     std::declval<std::ostream>() << std::declval<T>()
 );
-template<typename T>
-using output_exist_czz_t = decltype(std::declval<std::ostream>() << std::declval<T>());
-
 template <typename T, typename V = void>
-struct has_stream_out_t: public std::false_type {
-    static void call() {
-        std::cout << "has not stream out\n";
-    }
-};
+struct has_stream_out_t: public std::false_type {};
 template <typename T>
-struct has_stream_out_t<T, std::void_t<output_exist_czz_t<T>>> : public std::true_type {
-    static void call() {
-        std::cout << "has stream out\n";
-    }
-};
+struct has_stream_out_t<T, std::void_t<output_exist_t<T>>> : public std::true_type {};
 template<typename T, typename V = void>
 struct has_stream_in_t : public std::false_type {};
 template<typename T>

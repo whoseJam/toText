@@ -1,9 +1,10 @@
 #pragma once
 
-#include <map>
-#include <iostream>
-#include <string>
 #include <functional>
+#include <iostream>
+#include <cassert>
+#include <string>
+#include <map>
 
 namespace ttx {
 
@@ -36,10 +37,7 @@ private:
     }
     std::function<BaseClass* ()> find(const std::string& key) {
         auto it = Map.find(key);
-        if (it == Map.end()) {
-            std::cout << "key = " << key << " not found (factory)";
-            exit(-1);
-        }
+        assert(it != Map.end());
         return it->second;
     }
     std::map<std::string, std::function<BaseClass* ()>> Map;
