@@ -6,6 +6,14 @@ testBool: lib
 	g++ $(FLAGS) -c $(ROOT)/example/testBool.cpp -o $(ROOT)/build/testBool.o 
 	g++ $(OBJECTS) $(ROOT)/build/testBool.o -o $(ROOT)/build/testBool.exe
 
+testExtend: lib
+	g++ $(FLAGS) -c $(ROOT)/example/testExtend.cpp -o $(ROOT)/build/testExtend.o 
+	g++ $(OBJECTS) $(ROOT)/build/testExtend.o -o $(ROOT)/build/testExtend.exe
+
+testStorableVector: lib
+	g++ $(FLAGS) -c $(ROOT)/example/testStorableVector.cpp -o $(ROOT)/build/testStorableVector.o 
+	g++ $(OBJECTS) $(ROOT)/build/testStorableVector.o -o $(ROOT)/build/testStorableVector.exe
+
 lib: $(OBJECTS)
 	echo "finish build lib"
 

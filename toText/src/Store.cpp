@@ -73,7 +73,7 @@ Storable* getStorable(StoreID id) {
         return memory[id];
     return nullptr;
 }
-void addStorable(ttx::Storable* item) {
+void addStorable(Storable* item) {
     memory[item->getLastStoreID()] = item;
 }
 void addDependency(Storable* depend) {

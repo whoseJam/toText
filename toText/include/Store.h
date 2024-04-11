@@ -120,11 +120,23 @@ public: \
 
 #define TTX_IMPL(self) \
     self::self(int,int,int,int,int,int,int,int,int,int) { } \
-    bool self::decode(const std::string& name, std::istream& stream) { TTX_DECODE_BODY_1(self); return false; } \
-    bool self::decodeFirstClass(std::istream& stream) {TTX_DECODE_CLASS(self); return false; } \
-    void self::encode(std::ostream& stream) {TTX_ENCODE_BODY_1(self);} \
-    void self::encodeFirstClass(std::ostream& stream) {TTX_ENCODE_CLASS_HEAD(self); TTX_ENCODE_BODY_1(self); TTX_ENCODE_CLASS_FOOT(self); } \
-    __TTX_REGISTER(self);
+    bool self::decode(const std::string& name, std::istream& stream) { \
+        TTX_DECODE_BODY_1(self); \
+        return false; \
+    } \
+    bool self::decodeFirstClass(std::istream& stream) { \
+        TTX_DECODE_CLASS(self); \
+        return false; \
+    } \
+    void self::encode(std::ostream& stream) { \
+        TTX_ENCODE_BODY_1(self); \
+    } \
+    void self::encodeFirstClass(std::ostream& stream) { \
+        TTX_ENCODE_CLASS_HEAD(self); \
+        TTX_ENCODE_BODY_1(self); \
+        TTX_ENCODE_CLASS_FOOT(self); \
+    } \
+    __TTX_REGISTER(self)
 
 #define TTX_IMPL_1(self,p0) \
     self::self(int,int,int,int,int,int,int,int,int,int) : TTX_PARENT_CREATE_1(p0) { } \

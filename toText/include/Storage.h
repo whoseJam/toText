@@ -235,8 +235,9 @@ public:
     struct Variable<T,
         std::enable_if_t<
             std::is_pointer_v<T> &&
-            std::is_base_of_v<Storable, get_origin_t<T>>
-        >    
+            std::is_base_of_v<Storable, get_origin_t<T>> &&
+            std::is_same_v<typename std::remove_pointer_t<T>*, T>
+        >
     > {
         using B = std::remove_pointer_t<T>; // B = Storable
         Variable(const std::string& name, Offset offset) {
@@ -245,22 +246,23 @@ public:
         static DecodeFunc getDecoder() {
             return [](void* ptr, std::istream& stream) {
                 StoreID id;
-                T* location = static_cast<T*>(ptr);
+                Storable** location = static_cast<Storable**>(ptr);
+                StoreID* locationOfStoreID = static_cast<StoreID*>(ptr);
                 stream >> id;
-                if (id == 0)  *location = nullptr;
-                else {
-                    *static_cast<StoreID*>(ptr) = id;
-                    addDependency(static_cast<B*>(ptr));
-                }
+                if (id != 0)  {
+                    *locationOfStoreID = id;
+                    addDependency(static_cast<Storable*>(ptr));
+                } else *location = nullptr;
             };
         }
         static EncodeFunc getEncoder() {
             return [](void* ptr, std::ostream& stream) {
-                if (*static_cast<T*>(ptr) == nullptr) stream << 0 << ' ';
-                else {
-                    stream << (**static_cast<T*>(ptr)).getStoreID() << ' ';
-                    addDependency(*static_cast<T*>(ptr));
-                }
+                Storable** location = static_cast<Storable**>(ptr);
+                Storable* locationOfStorable = *location;
+                if (locationOfStorable != nullptr) {
+                    stream << locationOfStorable->getStoreID() << ' ';
+                    addDependency(locationOfStorable);
+                } else stream << 0 << ' ';
             };
         }
     };
