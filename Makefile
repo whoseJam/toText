@@ -14,6 +14,10 @@ testStorableVector: lib
 	g++ $(FLAGS) -c $(ROOT)/example/testStorableVector.cpp -o $(ROOT)/build/testStorableVector.o 
 	g++ $(OBJECTS) $(ROOT)/build/testStorableVector.o -o $(ROOT)/build/testStorableVector.exe
 
+testCircleHold: lib
+	g++ $(FLAGS) -c $(ROOT)/example/testCircleHold.cpp -o $(ROOT)/build/testCircleHold.o 
+	g++ $(OBJECTS) $(ROOT)/build/testCircleHold.o -o $(ROOT)/build/testCircleHold.exe
+
 lib: $(OBJECTS)
 	echo "finish build lib"
 

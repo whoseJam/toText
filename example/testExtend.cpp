@@ -23,7 +23,7 @@ TTX_IMPL(Animal);
 TTX_VARIABLE_PUB(Animal, hp);
 TTX_VARIABLE_PUB(Animal, speed);
 
-class Object: virtual public ttx::Storable {
+class Object: public ttx::Storable {
     TTX_DECLARE(Object);
 public:
     Object(int id, int count): id{id}, count{count} {}
@@ -50,7 +50,6 @@ public:
         }
     }
     void checkIsSameAs(ttx::Storable* o) {
-        cout << "check in monkey\n";
         Monkey* other = dynamic_cast<Monkey*>(o);
         assert(other != nullptr);
         assert(other->stolenObjects.size() == stolenObjects.size());
@@ -69,7 +68,6 @@ class Pigman: public Animal, virtual public ttx::Storable {
 public:
     Pigman(int hp, int speed, bool isFriendly): Animal{hp, speed}, isFriendly{isFriendly} {}
     void checkIsSameAs(ttx::Storable* o) {
-        cout << "check in pigman\n";
         Pigman* other = dynamic_cast<Pigman*>(o);
         assert(other != nullptr);
         assert(other->isFriendly == isFriendly);
@@ -94,11 +92,7 @@ int main() {
 
     vector<ttx::Storable*> result = ttx::load("./temp.txt");
 
-    cout << "hello\n";
-
-    assert(result.size() == testdata.size());
-    cout << "world\n";
-    for (int i = 0; i < result.size(); i++) {
+    for (int i = 0; i < testdata.size(); i++) {
         Pigman* pigman = dynamic_cast<Pigman*>(result[i]);
         Monkey* monkey = dynamic_cast<Monkey*>(result[i]);
         if (pigman) pigman->checkIsSameAs(testdata[i]);
