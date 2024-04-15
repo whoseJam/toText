@@ -1,22 +1,12 @@
 ROOT=.
 FLAGS=-std=c++17 -I ./toText/include -Wno-invalid-offsetof
 OBJECTS=$(ROOT)/build/Storable.o $(ROOT)/build/Store.o
+TESTS=testBool testCircleHold testEnum testExtend testMap testMultiExtend testPri \
+	  testStorablePtr testStorableVector testVector
 
-testBool: lib
-	g++ $(FLAGS) -c $(ROOT)/example/testBool.cpp -o $(ROOT)/build/testBool.o 
-	g++ $(OBJECTS) $(ROOT)/build/testBool.o -o $(ROOT)/build/testBool.exe
-
-testExtend: lib
-	g++ $(FLAGS) -c $(ROOT)/example/testExtend.cpp -o $(ROOT)/build/testExtend.o 
-	g++ $(OBJECTS) $(ROOT)/build/testExtend.o -o $(ROOT)/build/testExtend.exe
-
-testStorableVector: lib
-	g++ $(FLAGS) -c $(ROOT)/example/testStorableVector.cpp -o $(ROOT)/build/testStorableVector.o 
-	g++ $(OBJECTS) $(ROOT)/build/testStorableVector.o -o $(ROOT)/build/testStorableVector.exe
-
-testCircleHold: lib
-	g++ $(FLAGS) -c $(ROOT)/example/testCircleHold.cpp -o $(ROOT)/build/testCircleHold.o 
-	g++ $(OBJECTS) $(ROOT)/build/testCircleHold.o -o $(ROOT)/build/testCircleHold.exe
+$(TESTS): lib
+	g++ $(FLAGS) -c $(ROOT)/example/$@.cpp -o $(ROOT)/build/$@.o
+	g++ $(OBJECTS) $(ROOT)/build/$@.o -o $(ROOT)/build/$@.exe
 
 lib: $(OBJECTS)
 	echo "finish build lib"

@@ -59,40 +59,35 @@ constexpr bool has_stream_in_v = has_stream_in_t<T>::value;
 template<typename T>
 constexpr bool has_stream_v = has_stream_in_v<T> && has_stream_out_v<T>;
 
-
+// 用来推导是否是一个STL容器（不包括map/unordered_map）
 template<typename T>
-struct is_container : std::false_type {
-};
+struct is_container : std::false_type {};
 template<typename T, typename ...Types>
-struct is_container<std::vector<T, Types...>> : std::true_type {
-    using value_type = T;
-};
+struct is_container<std::vector<T, Types...>> : std::true_type {};
 template<typename T, typename ...Types>
-struct is_container<std::list<T, Types...>> : std::true_type {
-    using value_type = T;
-};
+struct is_container<std::list<T, Types...>> : std::true_type {};
 template<typename T, typename ...Types>
-struct is_container<std::stack<T, Types...>> : std::true_type {
-    using value_type = T;
-};
+struct is_container<std::stack<T, Types...>> : std::true_type {};
 template<typename T, typename ...Types>
-struct is_container<std::queue<T, Types...>> : std::true_type {
-    using value_type = T;
-};
+struct is_container<std::queue<T, Types...>> : std::true_type {};
 template<typename T, typename ...Types>
-struct is_container<std::deque<T, Types...>> : std::true_type {
-    using value_type = T;
-};
+struct is_container<std::deque<T, Types...>> : std::true_type {};
 template<typename T, typename ...Types>
-struct is_container<std::set<T, Types...>> : std::true_type {
-    using value_type = T;
-};
+struct is_container<std::set<T, Types...>> : std::true_type { using value_type = T; };
 template<typename T, typename ...Types>
-struct is_container<std::multiset<T, Types...>> : std::true_type {
-    using value_type = T;
-};
+struct is_container<std::multiset<T, Types...>> : std::true_type { using value_type = T; };
 template<typename ...Types>
 constexpr bool is_container_v = is_container<Types...>::value;
+
+// 用来推导是否是map这种KV容器
+template<typename T>
+struct is_map : std::false_type {};
+template<typename... Args>
+struct is_map<std::map<Args...>> : std::true_type {};
+template<typename... Args>
+struct is_map<std::unordered_map<Args...>> : std::true_type {};
+template<typename ...Types>
+constexpr bool is_map_v = is_map<Types...>::value;
 
 template<typename T, typename V = void>
 struct has_push_back : std::false_type {

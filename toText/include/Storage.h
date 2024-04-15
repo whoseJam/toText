@@ -162,44 +162,6 @@ public:
         }
     };
 
-    // T.push_back and T is iterable (e.g vector/list/deque)
-    template<typename T>
-    struct Variable<T,
-        std::enable_if_t<
-            has_push_back_v<T> &&
-            is_container_v<T>
-        >
-    > {
-        using I = typename T::value_type;
-        Variable(const std::string& name, Offset offset) {
-            getInstance()->insert(name, getDecoder(), getEncoder(), offset);
-        }
-        static DecodeFunc getDecoder() {
-            return [](void* ptr, std::istream& stream) {
-                int size;
-                auto decoder = Variable<I>::getDecoder();
-                T* location = static_cast<T*>(ptr);
-                T& container = *location;
-                stream >> size;
-                container.resize(size);
-                for (auto& element: container) {
-                    decoder(static_cast<void*>(&element), stream);
-                }
-            };
-        }
-        static EncodeFunc getEncoder() {
-            return [](void* ptr, std::ostream& stream) {
-                T* location = static_cast<T*>(ptr);
-                T& container = *location;
-                auto encoder = Variable<I>::getEncoder();
-                stream << container.size() << ' ';
-                for (auto& element: container) {
-                    encoder(static_cast<void*>(&element), stream);
-                }
-            };
-        }
-    };
-
     // T = BasicType* and BasicType != Storable
     template<typename T>
     struct Variable<T,
@@ -266,6 +228,90 @@ public:
             };
         }
     };
+
+    // T.push_back and T is iterable (e.g vector/list/deque)
+    template<typename T>
+    struct Variable<T,
+        std::enable_if_t<
+            has_push_back_v<T> &&
+            is_container_v<T>
+        >
+    > {
+        using I = typename T::value_type;
+        Variable(const std::string& name, Offset offset) {
+            getInstance()->insert(name, getDecoder(), getEncoder(), offset);
+        }
+        static DecodeFunc getDecoder() {
+            return [](void* ptr, std::istream& stream) {
+                int size;
+                auto decoder = Variable<I>::getDecoder();
+                T* location = static_cast<T*>(ptr);
+                T& container = *location;
+                stream >> size;
+                container.resize(size);
+                for (auto& element: container) {
+                    decoder(static_cast<void*>(&element), stream);
+                }
+            };
+        }
+        static EncodeFunc getEncoder() {
+            return [](void* ptr, std::ostream& stream) {
+                T* location = static_cast<T*>(ptr);
+                T& container = *location;
+                auto encoder = Variable<I>::getEncoder();
+                stream << container.size() << ' ';
+                for (auto& element: container) {
+                    encoder(static_cast<void*>(&element), stream);
+                }
+            };
+        }
+    };
+
+    // T = std::map || T = std::unordered_map
+    template<typename T>
+    struct Variable<T,
+        std::enable_if_t<
+            is_map_v<T>
+        >
+    > {
+        using K = typename T::key_type;
+        using V = typename T::mapped_type;
+        Variable(const std::string& name, Offset offset) {
+            getInstance()->insert(name, getDecoder(), getEncoder(), offset);
+        }
+        static DecodeFunc getDecoder() {
+            return [](void* ptr, std::istream& stream) {
+                int size;
+                auto keyDecoder = Variable<K>::getDecoder();
+                auto valDecoder = Variable<V>::getDecoder();
+                T* location = static_cast<T*>(ptr);
+                T& container = *location;
+                stream >> size;
+                for (int i = 0; i < size; i++) {
+                    K key;
+                    V val;
+                    keyDecoder(&key, stream);
+                    valDecoder(&val, stream);
+                    container.emplace(key, std::move(val));
+                }
+            };
+        }
+        static EncodeFunc getEncoder() {
+            return [](void* ptr, std::ostream& stream) {
+                T* location = static_cast<T*>(ptr);
+                T& container = *location;
+                auto keyEncoder = Variable<K>::getEncoder();
+                auto valEncoder = Variable<V>::getEncoder();
+                stream << container.size() << ' ';
+                for (auto& element: container) {
+                    keyEncoder(const_cast<K*>(&element.first), stream);
+                    valEncoder(const_cast<V*>(&element.second), stream);
+                }
+            };
+        }
+    };
+
+
 };
 
 }
